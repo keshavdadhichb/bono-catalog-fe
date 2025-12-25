@@ -29,10 +29,14 @@ function App() {
     // Marketing options (poster mode)
     const [marketingTheme, setMarketingTheme] = useState('studio_minimal')
     const [prop, setProp] = useState('none')
-    const [headlineText, setHeadlineText] = useState('')
-    const [subText, setSubText] = useState('')
     const [layoutStyle, setLayoutStyle] = useState('framed_breakout')
-    const [stylePreset, setStylePreset] = useState('')
+
+    // Text overlay fields (all optional)
+    const [heroText, setHeroText] = useState('')
+    const [subText, setSubText] = useState('')
+    const [cornerText, setCornerText] = useState('')
+    const [sizeText, setSizeText] = useState('')
+    const [priceText, setPriceText] = useState('')
     const [textColor, setTextColor] = useState('white')
     const [logo, setLogo] = useState(null)
 
@@ -87,10 +91,13 @@ function App() {
             } else {
                 formData.append('marketing_theme', marketingTheme)
                 formData.append('prop', prop)
-                formData.append('headline_text', headlineText)
-                formData.append('sub_text', subText)
                 formData.append('layout_style', layoutStyle)
-                formData.append('style_preset', stylePreset)
+                // Text overlay fields
+                formData.append('hero_text', heroText)
+                formData.append('sub_text', subText)
+                formData.append('corner_text', cornerText)
+                formData.append('size_text', sizeText)
+                formData.append('price_text', priceText)
                 formData.append('text_color', textColor)
                 if (logo) {
                     formData.append('logo', logo)
@@ -288,14 +295,18 @@ function App() {
                                     setPose={setPoseType}
                                     shotAngle={shotAngle}
                                     setShotAngle={setShotAngle}
-                                    headlineText={headlineText}
-                                    setHeadlineText={setHeadlineText}
-                                    subText={subText}
-                                    setSubText={setSubText}
                                     layoutStyle={layoutStyle}
                                     setLayoutStyle={setLayoutStyle}
-                                    stylePreset={stylePreset}
-                                    setStylePreset={setStylePreset}
+                                    heroText={heroText}
+                                    setHeroText={setHeroText}
+                                    subText={subText}
+                                    setSubText={setSubText}
+                                    cornerText={cornerText}
+                                    setCornerText={setCornerText}
+                                    sizeText={sizeText}
+                                    setSizeText={setSizeText}
+                                    priceText={priceText}
+                                    setPriceText={setPriceText}
                                     textColor={textColor}
                                     setTextColor={setTextColor}
                                 />
