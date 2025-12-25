@@ -22,7 +22,7 @@ function App() {
     const [hairType, setHairType] = useState('short black hair')
     const [bodyType, setBodyType] = useState('')
 
-    // Shot and pose (photo mode)
+    // Shot and pose (shared between modes)
     const [shotAngle, setShotAngle] = useState('front_facing')
     const [poseType, setPoseType] = useState('catalog_standard')
 
@@ -32,6 +32,8 @@ function App() {
     const [headlineText, setHeadlineText] = useState('')
     const [subText, setSubText] = useState('')
     const [layoutStyle, setLayoutStyle] = useState('framed_breakout')
+    const [stylePreset, setStylePreset] = useState('')
+    const [textColor, setTextColor] = useState('white')
     const [logo, setLogo] = useState(null)
 
     // Generation state
@@ -76,10 +78,10 @@ function App() {
             formData.append('skin_tone', skinTone)
             formData.append('hair_type', hairType)
             formData.append('body_type', bodyType)
+            formData.append('shot_angle', shotAngle)
+            formData.append('pose_type', poseType)
 
             if (generationMode === 'photo') {
-                formData.append('shot_angle', shotAngle)
-                formData.append('pose_type', poseType)
                 formData.append('creative_direction', creativeDirection)
             } else {
                 formData.append('marketing_theme', marketingTheme)
@@ -87,6 +89,8 @@ function App() {
                 formData.append('headline_text', headlineText)
                 formData.append('sub_text', subText)
                 formData.append('layout_style', layoutStyle)
+                formData.append('style_preset', stylePreset)
+                formData.append('text_color', textColor)
                 if (logo) {
                     formData.append('logo', logo)
                 }
@@ -232,18 +236,26 @@ function App() {
                             <>
                                 {/* Marketing Options */}
                                 <section className="form-section">
-                                    <h2><span className="step">5</span>Theme & Layout</h2>
+                                    <h2><span className="step">5</span>Poster Options</h2>
                                     <MarketingOptions
                                         theme={marketingTheme}
                                         setTheme={setMarketingTheme}
                                         prop={prop}
                                         setProp={setProp}
+                                        pose={poseType}
+                                        setPose={setPoseType}
+                                        shotAngle={shotAngle}
+                                        setShotAngle={setShotAngle}
                                         headlineText={headlineText}
                                         setHeadlineText={setHeadlineText}
                                         subText={subText}
                                         setSubText={setSubText}
                                         layoutStyle={layoutStyle}
                                         setLayoutStyle={setLayoutStyle}
+                                        stylePreset={stylePreset}
+                                        setStylePreset={setStylePreset}
+                                        textColor={textColor}
+                                        setTextColor={setTextColor}
                                     />
                                 </section>
 
