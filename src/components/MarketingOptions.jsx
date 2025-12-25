@@ -1,4 +1,5 @@
 import React from 'react'
+import LayoutPreview, { LAYOUTS } from './LayoutPreview'
 
 // Themes
 const themes = [
@@ -20,10 +21,8 @@ const poses = [
     { value: 'arms_crossed', label: 'Arms Crossed' },
     { value: 'walking', label: 'Walking' },
     { value: 'sitting_chair', label: 'Sitting on Chair' },
-    { value: 'sitting_stool', label: 'Sitting on Stool' },
     { value: 'leaning_wall', label: 'Leaning on Wall' },
     { value: 'crouching', label: 'Crouching' },
-    { value: 'jumping', label: 'Jumping' },
     { value: 'editorial_dramatic', label: 'Editorial Dramatic' }
 ]
 
@@ -33,38 +32,49 @@ const props = [
     { value: 'cap', label: 'Baseball Cap' },
     { value: 'sunglasses', label: 'Sunglasses' },
     { value: 'watch', label: 'Watch' },
-    { value: 'chain', label: 'Chain' },
     { value: 'headphones', label: 'Headphones' },
     { value: 'coffee', label: 'Coffee Cup' },
-    { value: 'phone', label: 'Smartphone' },
     { value: 'skateboard', label: 'Skateboard' },
     { value: 'basketball', label: 'Basketball' }
-]
-
-// Layouts
-const layouts = [
-    { value: 'framed_breakout', label: 'Framed Break-out' },
-    { value: 'magazine_style', label: 'Magazine Style' },
-    { value: 'full_bleed', label: 'Full Bleed' },
-    { value: 'centered_minimal', label: 'Centered Minimal' }
 ]
 
 export default function MarketingOptions({
     theme, setTheme,
     prop, setProp,
     pose, setPose,
-    shotAngle, setShotAngle,
     layoutStyle, setLayoutStyle,
-    // Text Overlay Fields (ALL OPTIONAL)
-    heroText, setHeroText,
-    subText, setSubText,
-    cornerText, setCornerText,
-    sizeText, setSizeText,
-    priceText, setPriceText,
-    textColor, setTextColor
+    // Text fields
+    headline, setHeadline,
+    subtext, setSubtext,
+    brand, setBrand,
+    price, setPrice,
+    cta, setCta,
+    tagline, setTagline
 }) {
+    // Get text fields for selected layout
+    const selectedLayout = LAYOUTS[layoutStyle] || LAYOUTS.hero_bottom
+    const activeTextFields = selectedLayout.textFields || []
+
     return (
         <div className="marketing-options">
+            {/* Layout Selection with Preview */}
+            <div className="form-group">
+                <label>Layout Style</label>
+                <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '0.75rem' }}>
+                    Select a layout to see which text fields are available
+                </p>
+                <LayoutPreview selected={layoutStyle} onSelect={setLayoutStyle} />
+                <p style={{
+                    marginTop: '0.75rem',
+                    padding: '0.5rem',
+                    background: 'var(--bg-secondary)',
+                    borderRadius: '6px',
+                    fontSize: '0.875rem'
+                }}>
+                    <strong>{selectedLayout.name}:</strong> {selectedLayout.description}
+                </p>
+            </div>
+
             {/* Theme */}
             <div className="form-group">
                 <label>Theme / Background</label>
@@ -73,7 +83,7 @@ export default function MarketingOptions({
                 </select>
             </div>
 
-            {/* Pose & Layout */}
+            {/* Pose & Props */}
             <div className="form-row">
                 <div className="form-group">
                     <label>Pose</label>
@@ -82,111 +92,126 @@ export default function MarketingOptions({
                     </select>
                 </div>
                 <div className="form-group">
-                    <label>Layout Style</label>
-                    <select value={layoutStyle} onChange={(e) => setLayoutStyle(e.target.value)}>
-                        {layouts.map(l => <option key={l.value} value={l.value}>{l.label}</option>)}
+                    <label>Props</label>
+                    <select value={prop} onChange={(e) => setProp(e.target.value)}>
+                        {props.map(p => <option key={p.value} value={p.value}>{p.label}</option>)}
                     </select>
                 </div>
             </div>
 
-            {/* Props */}
-            <div className="form-group">
-                <label>Props / Accessories</label>
-                <select value={prop} onChange={(e) => setProp(e.target.value)}>
-                    {props.map(p => <option key={p.value} value={p.value}>{p.label}</option>)}
-                </select>
-            </div>
-
-            {/* TEXT OVERLAY SECTION */}
+            {/* Dynamic Text Fields based on Layout */}
             <div className="form-section-divider" style={{
                 marginTop: '1.5rem',
                 paddingTop: '1.5rem',
                 borderTop: '1px solid var(--border-color)'
             }}>
                 <h3 style={{ marginBottom: '1rem', fontSize: '1rem', color: 'var(--text-secondary)' }}>
-                    📝 Text Overlay (Applied by Software - 100% Accurate)
+                    📝 Text Content for {selectedLayout.name}
                 </h3>
 
-                {/* Hero Text */}
-                <div className="form-group">
-                    <label>Hero Text (Large, Center)</label>
-                    <input
-                        type="text"
-                        value={heroText}
-                        onChange={(e) => setHeroText(e.target.value.toUpperCase())}
-                        placeholder="e.g., RELAXED FIT"
-                        maxLength={25}
-                    />
-                </div>
-
-                {/* Sub Text */}
-                <div className="form-group">
-                    <label>Sub Text (Below Hero)</label>
-                    <input
-                        type="text"
-                        value={subText}
-                        onChange={(e) => setSubText(e.target.value)}
-                        placeholder="e.g., Premium Cotton Collection"
-                        maxLength={50}
-                    />
-                </div>
-
-                {/* Corner & Price Row */}
-                <div className="form-row">
+                {/* Headline */}
+                {activeTextFields.includes('headline') && (
                     <div className="form-group">
-                        <label>Corner Text (Top Left)</label>
+                        <label>Headline (Main Text)</label>
                         <input
                             type="text"
-                            value={cornerText}
-                            onChange={(e) => setCornerText(e.target.value)}
-                            placeholder="e.g., BONO"
-                            maxLength={15}
+                            value={headline}
+                            onChange={(e) => setHeadline(e.target.value.toUpperCase())}
+                            placeholder="e.g., RELAXED FIT"
+                            maxLength={30}
                         />
                     </div>
+                )}
+
+                {/* Subtext */}
+                {activeTextFields.includes('subtext') && (
                     <div className="form-group">
-                        <label>Price (Bottom Right)</label>
+                        <label>Subtext</label>
                         <input
                             type="text"
-                            value={priceText}
-                            onChange={(e) => setPriceText(e.target.value)}
+                            value={subtext}
+                            onChange={(e) => setSubtext(e.target.value)}
+                            placeholder="e.g., Premium Cotton Collection"
+                            maxLength={50}
+                        />
+                    </div>
+                )}
+
+                {/* Brand */}
+                {activeTextFields.includes('brand') && (
+                    <div className="form-group">
+                        <label>Brand Name</label>
+                        <input
+                            type="text"
+                            value={brand}
+                            onChange={(e) => setBrand(e.target.value)}
+                            placeholder="e.g., BONO"
+                            maxLength={20}
+                        />
+                    </div>
+                )}
+
+                {/* Tagline */}
+                {activeTextFields.includes('tagline') && (
+                    <div className="form-group">
+                        <label>Tagline</label>
+                        <input
+                            type="text"
+                            value={tagline}
+                            onChange={(e) => setTagline(e.target.value)}
+                            placeholder="e.g., Made for Champions"
+                            maxLength={40}
+                        />
+                    </div>
+                )}
+
+                {/* Price */}
+                {activeTextFields.includes('price') && (
+                    <div className="form-group">
+                        <label>Price</label>
+                        <input
+                            type="text"
+                            value={price}
+                            onChange={(e) => setPrice(e.target.value)}
                             placeholder="e.g., ₹1,299"
                             maxLength={15}
                         />
                     </div>
-                </div>
+                )}
 
-                {/* Size Text */}
-                <div className="form-group">
-                    <label>Size (Bottom Left)</label>
-                    <input
-                        type="text"
-                        value={sizeText}
-                        onChange={(e) => setSizeText(e.target.value)}
-                        placeholder="e.g., S M L XL XXL"
-                        maxLength={20}
-                    />
-                </div>
-
-                {/* Text Color */}
-                <div className="form-group">
-                    <label>Text Color</label>
-                    <div className="button-grid" style={{ gridTemplateColumns: '1fr 1fr' }}>
-                        <button
-                            type="button"
-                            className={`option-btn ${textColor === 'white' ? 'selected' : ''}`}
-                            onClick={() => setTextColor('white')}
-                        >
-                            White
-                        </button>
-                        <button
-                            type="button"
-                            className={`option-btn ${textColor === 'black' ? 'selected' : ''}`}
-                            onClick={() => setTextColor('black')}
-                        >
-                            Black
-                        </button>
+                {/* Sizes */}
+                {activeTextFields.includes('sizes') && (
+                    <div className="form-group">
+                        <label>Available Sizes</label>
+                        <input
+                            type="text"
+                            value={subtext}
+                            onChange={(e) => setSubtext(e.target.value)}
+                            placeholder="e.g., S M L XL XXL"
+                            maxLength={25}
+                        />
                     </div>
-                </div>
+                )}
+
+                {/* CTA */}
+                {activeTextFields.includes('cta') && (
+                    <div className="form-group">
+                        <label>Call to Action</label>
+                        <input
+                            type="text"
+                            value={cta}
+                            onChange={(e) => setCta(e.target.value)}
+                            placeholder="e.g., SHOP NOW"
+                            maxLength={20}
+                        />
+                    </div>
+                )}
+
+                {activeTextFields.length === 0 && (
+                    <p style={{ color: 'var(--text-muted)', fontStyle: 'italic' }}>
+                        This layout doesn't include text overlay.
+                    </p>
+                )}
             </div>
         </div>
     )

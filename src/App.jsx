@@ -29,15 +29,15 @@ function App() {
     // Marketing options (poster mode)
     const [marketingTheme, setMarketingTheme] = useState('studio_minimal')
     const [prop, setProp] = useState('none')
-    const [layoutStyle, setLayoutStyle] = useState('framed_breakout')
+    const [layoutStyle, setLayoutStyle] = useState('hero_bottom')
 
-    // Text overlay fields (all optional)
-    const [heroText, setHeroText] = useState('')
-    const [subText, setSubText] = useState('')
-    const [cornerText, setCornerText] = useState('')
-    const [sizeText, setSizeText] = useState('')
-    const [priceText, setPriceText] = useState('')
-    const [textColor, setTextColor] = useState('white')
+    // Text fields for poster (all optional, shown based on layout)
+    const [headline, setHeadline] = useState('')
+    const [subtext, setSubtext] = useState('')
+    const [brand, setBrand] = useState('')
+    const [price, setPrice] = useState('')
+    const [cta, setCta] = useState('')
+    const [tagline, setTagline] = useState('')
     const [logo, setLogo] = useState(null)
 
     // Generation state
@@ -92,13 +92,13 @@ function App() {
                 formData.append('marketing_theme', marketingTheme)
                 formData.append('prop', prop)
                 formData.append('layout_style', layoutStyle)
-                // Text overlay fields
-                formData.append('hero_text', heroText)
-                formData.append('sub_text', subText)
-                formData.append('corner_text', cornerText)
-                formData.append('size_text', sizeText)
-                formData.append('price_text', priceText)
-                formData.append('text_color', textColor)
+                // Text fields for poster
+                formData.append('headline', headline)
+                formData.append('subtext', subtext)
+                formData.append('brand_text', brand || brandName) // fallback to brandName
+                formData.append('price', price)
+                formData.append('cta', cta)
+                formData.append('tagline', tagline)
                 if (logo) {
                     formData.append('logo', logo)
                 }
@@ -293,22 +293,20 @@ function App() {
                                     setProp={setProp}
                                     pose={poseType}
                                     setPose={setPoseType}
-                                    shotAngle={shotAngle}
-                                    setShotAngle={setShotAngle}
                                     layoutStyle={layoutStyle}
                                     setLayoutStyle={setLayoutStyle}
-                                    heroText={heroText}
-                                    setHeroText={setHeroText}
-                                    subText={subText}
-                                    setSubText={setSubText}
-                                    cornerText={cornerText}
-                                    setCornerText={setCornerText}
-                                    sizeText={sizeText}
-                                    setSizeText={setSizeText}
-                                    priceText={priceText}
-                                    setPriceText={setPriceText}
-                                    textColor={textColor}
-                                    setTextColor={setTextColor}
+                                    headline={headline}
+                                    setHeadline={setHeadline}
+                                    subtext={subtext}
+                                    setSubtext={setSubtext}
+                                    brand={brand}
+                                    setBrand={setBrand}
+                                    price={price}
+                                    setPrice={setPrice}
+                                    cta={cta}
+                                    setCta={setCta}
+                                    tagline={tagline}
+                                    setTagline={setTagline}
                                 />
                             </section>
 
