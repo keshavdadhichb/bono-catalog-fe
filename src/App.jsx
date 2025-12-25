@@ -107,20 +107,42 @@ function App() {
                 body: formData
             })
 
+            // Debug: log response info
+            const contentType = response.headers.get('content-type')
+            console.log('Response status:', response.status)
+            console.log('Content-Type:', contentType)
+            console.log('Content-Length:', response.headers.get('content-length'))
+
             if (!response.ok) {
                 // Try to get error message
                 let errorMsg = 'Generation failed'
                 try {
-                    const err = await response.json()
-                    errorMsg = err.detail || errorMsg
+                    const text = await response.text()
+                    console.log('Error response:', text.substring(0, 500))
+                    try {
+                        const err = JSON.parse(text)
+                        errorMsg = err.detail || errorMsg
+                    } catch {
+                        errorMsg = text.substring(0, 200) || `Server error: ${response.status}`
+                    }
                 } catch {
                     errorMsg = `Server error: ${response.status}`
                 }
                 throw new Error(errorMsg)
             }
 
+            // Check if response is actually a ZIP
+            if (!contentType || !contentType.includes('application/zip')) {
+                // Response is not a ZIP - it might be an error page
+                const text = await response.text()
+                console.error('Expected ZIP but got:', contentType)
+                console.error('Response body:', text.substring(0, 500))
+                throw new Error(`Server returned ${contentType || 'unknown'} instead of ZIP. Check console for details.`)
+            }
+
             // Response is a ZIP file blob
             const blob = await response.blob()
+            console.log('Blob size:', blob.size, 'type:', blob.type)
 
             // Create download link
             const url = window.URL.createObjectURL(blob)
@@ -132,7 +154,7 @@ function App() {
             document.body.removeChild(a)
             window.URL.revokeObjectURL(url)
 
-            setJobStatus({ status: 'completed', message: 'Download started!' })
+            setJobStatus({ status: 'completed', message: 'Download complete!' })
             setIsGenerating(false)
 
         } catch (error) {
