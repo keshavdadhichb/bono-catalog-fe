@@ -194,6 +194,84 @@ const LAYOUTS = {
                 <text x="17" y="143" fill="#fff" fontSize="8">₹1,299</text>
             </svg>
         )
+    },
+    // BONO DESIGNER LAYOUTS
+    orange_diagonal: {
+        name: "Orange Diagonal",
+        description: "Split background with diagonal banner",
+        textFields: ["brand", "headline", "subtext", "tagline"],
+        diagram: (
+            <svg viewBox="0 0 90 160" style={{ width: '100%', height: '100%' }}>
+                <rect x="0" y="0" width="90" height="80" fill="#fff" rx="4 4 0 0" />
+                <rect x="0" y="80" width="90" height="80" fill="#E67E22" rx="0 0 4 4" />
+                <circle cx="45" cy="55" r="18" fill="#ddd" />
+                <rect x="30" y="75" width="30" height="35" fill="#ddd" rx="2" />
+                <polygon points="0,100 90,70 90,90 0,120" fill="#D35400" />
+                <rect x="25" y="10" width="40" height="10" fill="#E67E22" rx="1" />
+                <rect x="10" y="130" width="50" height="8" fill="#fff" rx="1" />
+                <rect x="10" y="145" width="30" height="6" fill="#333" rx="1" />
+            </svg>
+        )
+    },
+    yellow_vibrant: {
+        name: "Yellow Vibrant",
+        description: "Bright yellow with purple accents",
+        textFields: ["headline", "subtext", "brand"],
+        diagram: (
+            <svg viewBox="0 0 90 160" style={{ width: '100%', height: '100%' }}>
+                <rect x="0" y="0" width="90" height="160" fill="#F1C40F" rx="4" />
+                <rect x="5" y="10" width="70" height="15" stroke="#8E44AD" fill="none" strokeWidth="2" rx="1" />
+                <text x="40" y="22" textAnchor="middle" fill="#8E44AD" fontSize="10" fontWeight="bold">FASHION</text>
+                <circle cx="45" cy="70" r="22" fill="#ddd" />
+                <rect x="28" y="95" width="34" height="40" fill="#ddd" rx="2" />
+                <rect x="10" y="140" width="50" height="12" fill="#fff" stroke="#8E44AD" strokeWidth="1" rx="1" />
+                <circle cx="75" cy="50" r="3" fill="#8E44AD" />
+                <circle cx="80" cy="55" r="3" fill="#8E44AD" />
+                <circle cx="85" cy="50" r="3" fill="#8E44AD" />
+                <rect x="75" y="100" width="2" height="50" fill="#8E44AD" />
+            </svg>
+        )
+    },
+    pink_elegant: {
+        name: "Pink Elegant",
+        description: "Soft pink with elegant typography",
+        textFields: ["headline", "subtext", "brand"],
+        diagram: (
+            <svg viewBox="0 0 90 160" style={{ width: '100%', height: '100%' }}>
+                <rect x="0" y="0" width="90" height="160" fill="#FADBD8" rx="4" />
+                <rect x="15" y="10" width="60" height="12" fill="#E67E22" rx="1" />
+                <text x="45" y="19" textAnchor="middle" fill="#fff" fontSize="7" fontWeight="bold">VELVET REVERIE</text>
+                <rect x="25" y="25" width="40" height="8" fill="none" stroke="#E67E22" strokeWidth="1" rx="1" />
+                <circle cx="45" cy="85" r="25" fill="#eee" />
+                <rect x="28" y="112" width="34" height="40" fill="#eee" rx="2" />
+                <rect x="8" y="50" width="6" height="45" fill="#E67E22" rx="1" />
+                <rect x="76" y="50" width="6" height="45" fill="#E67E22" rx="1" />
+                <text x="11" y="80" fill="#fff" fontSize="5" transform="rotate(-90 11 80)">DATE</text>
+                <text x="79" y="80" fill="#fff" fontSize="5" transform="rotate(90 79 80)">BONO</text>
+            </svg>
+        )
+    },
+    orange_framed: {
+        name: "Orange Framed",
+        description: "Deep orange with white frame",
+        textFields: ["headline", "tagline", "brand"],
+        diagram: (
+            <svg viewBox="0 0 90 160" style={{ width: '100%', height: '100%' }}>
+                <rect x="0" y="0" width="90" height="160" fill="#D35400" rx="4" />
+                <rect x="8" y="8" width="74" height="144" fill="none" stroke="#fff" strokeWidth="2" rx="2" />
+                <rect x="6" y="6" width="4" height="4" fill="#fff" />
+                <rect x="80" y="6" width="4" height="4" fill="#fff" />
+                <rect x="6" y="150" width="4" height="4" fill="#fff" />
+                <rect x="80" y="150" width="4" height="4" fill="#fff" />
+                <text x="45" y="35" textAnchor="middle" fill="#fff" fontSize="8" opacity="0.6">FASHION</text>
+                <text x="45" y="50" textAnchor="middle" fill="#fff" fontSize="8" opacity="0.4">FASHION</text>
+                <circle cx="45" cy="85" r="22" fill="#c0c0c0" />
+                <rect x="28" y="110" width="34" height="35" fill="#c0c0c0" rx="2" />
+                <rect x="15" y="125" width="20" height="6" fill="#fff" rx="1" />
+                <circle cx="75" cy="15" r="2" fill="#fff" opacity="0.5" />
+                <circle cx="80" cy="20" r="2" fill="#fff" opacity="0.5" />
+            </svg>
+        )
     }
 }
 
