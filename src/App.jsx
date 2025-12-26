@@ -7,10 +7,41 @@ import CreativeDirection from './components/CreativeDirection'
 import MarketingOptions from './components/MarketingOptions'
 import CatalogForm from './components/CatalogForm'
 import GenerationProgress from './components/GenerationProgress'
+import LayoutPreview from './components/LayoutPreview'
+import QualitySelector from './components/QualitySelector'
+
+// Wizard step definitions per mode
+const WIZARD_STEPS = {
+    photo: [
+        { id: 'mode', label: 'Mode', icon: '🎯' },
+        { id: 'category', label: 'Category & Model', icon: '👤' },
+        { id: 'style', label: 'Style', icon: '🎨' },
+        { id: 'products', label: 'Products', icon: '📦' },
+        { id: 'quality', label: 'Quality & Generate', icon: '✨' }
+    ],
+    poster: [
+        { id: 'mode', label: 'Mode', icon: '🎯' },
+        { id: 'category', label: 'Category & Model', icon: '👤' },
+        { id: 'theme', label: 'Theme & Style', icon: '🎨' },
+        { id: 'layout', label: 'Layout', icon: '📐' },
+        { id: 'products', label: 'Products', icon: '📦' },
+        { id: 'quality', label: 'Quality & Generate', icon: '✨' }
+    ],
+    catalog: [
+        { id: 'mode', label: 'Mode', icon: '🎯' },
+        { id: 'collection', label: 'Collection', icon: '📚' },
+        { id: 'theme', label: 'Theme', icon: '🎨' },
+        { id: 'products', label: 'Products', icon: '📦' },
+        { id: 'quality', label: 'Quality & Generate', icon: '✨' }
+    ]
+}
 
 function App() {
-    // Generation mode: "photo" or "poster"
-    const [generationMode, setGenerationMode] = useState('photo')
+    // Wizard state
+    const [currentStep, setCurrentStep] = useState(0)
+
+    // Generation mode
+    const [generationMode, setGenerationMode] = useState('poster')
 
     // Form state
     const [category, setCategory] = useState('teen_boy')
@@ -23,7 +54,7 @@ function App() {
     const [hairType, setHairType] = useState('short black hair')
     const [bodyType, setBodyType] = useState('')
 
-    // Shot and pose (shared between modes)
+    // Shot and pose
     const [shotAngle, setShotAngle] = useState('front_facing')
     const [poseType, setPoseType] = useState('catalog_standard')
 
@@ -32,7 +63,7 @@ function App() {
     const [prop, setProp] = useState('none')
     const [layoutStyle, setLayoutStyle] = useState('hero_bottom')
 
-    // Text fields for poster (all optional, shown based on layout)
+    // Text fields for poster
     const [headline, setHeadline] = useState('')
     const [subtext, setSubtext] = useState('')
     const [brand, setBrand] = useState('')
@@ -47,10 +78,18 @@ function App() {
     const [catalogTheme, setCatalogTheme] = useState('studio_minimal')
     const [catalogTextFields, setCatalogTextFields] = useState({})
 
+    // Quality selection
+    const [imageQuality, setImageQuality] = useState('4K')
+
     // Generation state
-    const [jobId, setJobId] = useState(null)
     const [jobStatus, setJobStatus] = useState(null)
     const [isGenerating, setIsGenerating] = useState(false)
+
+    // Get current wizard steps based on mode
+    const steps = WIZARD_STEPS[generationMode]
+    const currentStepData = steps[currentStep]
+    const isFirstStep = currentStep === 0
+    const isLastStep = currentStep === steps.length - 1
 
     const handleAddProduct = useCallback((frontImage, backImage) => {
         setProducts(prev => [...prev, {
@@ -68,13 +107,41 @@ function App() {
 
     const handleLogoUpload = (e) => {
         const file = e.target.files?.[0]
-        if (file) {
-            setLogo(file)
+        if (file) setLogo(file)
+    }
+
+    // Validation for each step
+    const canProceed = () => {
+        const stepId = currentStepData?.id
+        if (stepId === 'mode') return true
+        if (stepId === 'category') return category && brandName
+        if (stepId === 'style') return true
+        if (stepId === 'theme') return marketingTheme || catalogTheme
+        if (stepId === 'layout') return layoutStyle
+        if (stepId === 'collection') return collectionName
+        if (stepId === 'products') return products.length > 0
+        if (stepId === 'quality') return imageQuality
+        return true
+    }
+
+    const handleNext = () => {
+        if (isLastStep) {
+            handleSubmit()
+        } else if (canProceed()) {
+            setCurrentStep(prev => Math.min(prev + 1, steps.length - 1))
         }
     }
 
+    const handleBack = () => {
+        setCurrentStep(prev => Math.max(prev - 1, 0))
+    }
+
+    const handleModeChange = (mode) => {
+        setGenerationMode(mode)
+        setCurrentStep(0) // Reset to first step when mode changes
+    }
+
     const handleSubmit = async () => {
-        // Validate based on mode
         if (generationMode === 'catalog') {
             if (!collectionName || products.length === 0) {
                 alert('Please enter collection name and add at least one product')
@@ -93,13 +160,11 @@ function App() {
 
         try {
             const formData = new FormData()
-
-            // Common fields for all modes
             formData.append('category', category)
             formData.append('skin_tone', skinTone)
             formData.append('body_type', bodyType)
+            formData.append('image_quality', imageQuality)
 
-            // Add products
             products.forEach(p => {
                 formData.append('front_images', p.frontImage)
                 formData.append('back_images', p.backImage)
@@ -108,27 +173,15 @@ function App() {
             let endpoint = '/api/generate'
 
             if (generationMode === 'catalog') {
-                // Catalog mode - different endpoint and fields
                 endpoint = '/api/generate-catalog'
                 formData.append('collection_name', collectionName)
                 formData.append('collection_number', collectionNumber)
                 formData.append('theme', catalogTheme)
-                // Text fields
                 formData.append('text_tagline', catalogTextFields.tagline || '')
                 formData.append('text_season', catalogTextFields.season || '')
                 formData.append('text_year', catalogTextFields.year || '')
-                formData.append('text_price_range', catalogTextFields.price_range || '')
-                formData.append('text_fabric', catalogTextFields.fabric || '')
-                formData.append('text_brand_message', catalogTextFields.brand_message || '')
-                formData.append('text_custom_1', catalogTextFields.custom_1 || '')
-                formData.append('text_custom_2', catalogTextFields.custom_2 || '')
-                formData.append('text_custom_3', catalogTextFields.custom_3 || '')
-                formData.append('text_custom_4', catalogTextFields.custom_4 || '')
-                if (logo) {
-                    formData.append('logo', logo)
-                }
+                if (logo) formData.append('logo', logo)
             } else {
-                // Photo and Poster modes
                 formData.append('brand_name', brandName)
                 formData.append('generation_mode', generationMode)
                 formData.append('hair_type', hairType)
@@ -147,336 +200,365 @@ function App() {
                     formData.append('price', price)
                     formData.append('cta', cta)
                     formData.append('tagline', tagline)
-                    if (logo) {
-                        formData.append('logo', logo)
-                    }
+                    if (logo) formData.append('logo', logo)
                 }
             }
 
-            const response = await fetch(endpoint, {
-                method: 'POST',
-                body: formData
-            })
-
-            // Debug: log response info
-            const contentType = response.headers.get('content-type')
-            console.log('Response status:', response.status)
-            console.log('Content-Type:', contentType)
-            console.log('Content-Length:', response.headers.get('content-length'))
+            const response = await fetch(endpoint, { method: 'POST', body: formData })
 
             if (!response.ok) {
-                // Try to get error message
-                let errorMsg = 'Generation failed'
-                try {
-                    const text = await response.text()
-                    console.log('Error response:', text.substring(0, 500))
-                    try {
-                        const err = JSON.parse(text)
-                        errorMsg = err.detail || errorMsg
-                    } catch {
-                        errorMsg = text.substring(0, 200) || `Server error: ${response.status}`
-                    }
-                } catch {
-                    errorMsg = `Server error: ${response.status}`
-                }
-                throw new Error(errorMsg)
-            }
-
-            // Check if response is actually a ZIP
-            if (!contentType || !contentType.includes('application/zip')) {
-                // Response is not a ZIP - it might be an error page
                 const text = await response.text()
-                console.error('Expected ZIP but got:', contentType)
-                console.error('Response body:', text.substring(0, 500))
-                throw new Error(`Server returned ${contentType || 'unknown'} instead of ZIP. Check console for details.`)
+                throw new Error(text.substring(0, 200) || `Server error: ${response.status}`)
             }
 
-            // Response is a ZIP file blob
             const blob = await response.blob()
-            console.log('Blob size:', blob.size, 'type:', blob.type)
-
-            // Create download link
             const url = window.URL.createObjectURL(blob)
             const a = document.createElement('a')
             a.href = url
-            a.download = `${brandName}_${generationMode === 'poster' ? 'posters' : 'photos'}.zip`
+            a.download = generationMode === 'catalog'
+                ? `${collectionName || 'catalog'}_${Date.now()}.zip`
+                : `${brandName}_${generationMode}_${Date.now()}.zip`
             document.body.appendChild(a)
             a.click()
-            document.body.removeChild(a)
+            a.remove()
             window.URL.revokeObjectURL(url)
 
-            setJobStatus({ status: 'completed', message: 'Download complete!' })
-            setIsGenerating(false)
-
+            setJobStatus({ status: 'success', message: '✅ Downloaded!' })
+            setTimeout(() => setJobStatus(null), 3000)
         } catch (error) {
-            console.error('Generation error:', error)
-            setJobStatus({ status: 'failed', message: error.message })
+            setJobStatus({ status: 'error', message: error.message })
+        } finally {
             setIsGenerating(false)
         }
     }
 
-    const handleReset = () => {
-        setJobId(null)
-        setJobStatus(null)
-        setIsGenerating(false)
-        setProducts([])
-    }
+    // Render current step content
+    const renderStepContent = () => {
+        const stepId = currentStepData?.id
 
-    const isFormValid = generationMode === 'catalog'
-        ? (collectionName && products.length > 0)
-        : (brandName && products.length > 0)
-
-    return (
-        <div className="app">
-            <header className="header">
-                <div className="header-content">
-                    <div className="logo">
-                        <div className="logo-icon">B</div>
-                        <span className="logo-text">Bono</span>
-                    </div>
-                    <div style={{ color: 'var(--text-tertiary)', fontSize: '0.875rem' }}>
-                        Catalog Generator
-                    </div>
-                </div>
-            </header>
-
-            <main className="main-content">
-                <div className="hero">
-                    <h1>
-                        {generationMode === 'catalog'
-                            ? '📚 Master Catalog'
-                            : generationMode === 'poster'
-                                ? '🎨 Marketing Poster'
-                                : '📷 Model Photo'} Generation
-                    </h1>
-                    <p>
-                        {generationMode === 'catalog'
-                            ? 'Generate a complete product catalog with cover, product pages, and thank you page.'
-                            : generationMode === 'poster'
-                                ? 'Create complete marketing posters with themes, props, and typography.'
-                                : 'Generate professional virtual try-on photos for your products.'}
-                    </p>
-                </div>
-
-                <div className="form-container">
-                    {/* Mode Toggle */}
-                    <section className="form-section">
-                        <h2><span className="step">1</span>Mode</h2>
-                        <div className="mode-toggle" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.5rem' }}>
-                            <button
-                                type="button"
-                                className={`mode-btn ${generationMode === 'photo' ? 'active' : ''}`}
-                                onClick={() => setGenerationMode('photo')}
-                            >
-                                📷 Simple Photo
-                            </button>
-                            <button
-                                type="button"
-                                className={`mode-btn ${generationMode === 'poster' ? 'active' : ''}`}
-                                onClick={() => setGenerationMode('poster')}
-                            >
-                                🎨 Marketing Poster
-                            </button>
-                            <button
-                                type="button"
-                                className={`mode-btn ${generationMode === 'catalog' ? 'active' : ''}`}
-                                onClick={() => setGenerationMode('catalog')}
-                            >
-                                📚 Master Catalog
-                            </button>
+        switch (stepId) {
+            case 'mode':
+                return (
+                    <div className="step-content fade-in">
+                        <h2 style={{ marginBottom: '1rem', textAlign: 'center' }}>Choose Generation Mode</h2>
+                        <div className="mode-toggle-enhanced">
+                            {['photo', 'poster', 'catalog'].map(mode => (
+                                <button
+                                    key={mode}
+                                    className={generationMode === mode ? 'active' : ''}
+                                    onClick={() => handleModeChange(mode)}
+                                >
+                                    {mode === 'photo' && '📸 Simple Photo'}
+                                    {mode === 'poster' && '🎨 Marketing Poster'}
+                                    {mode === 'catalog' && '📚 Master Catalog'}
+                                </button>
+                            ))}
                         </div>
-                    </section>
-                    {/* Catalog Mode - Full CatalogForm */}
-                    {generationMode === 'catalog' ? (
+                        <p style={{ textAlign: 'center', marginTop: '1.5rem', color: 'var(--text-muted)' }}>
+                            {generationMode === 'photo' && 'Clean studio shots of your products on models'}
+                            {generationMode === 'poster' && 'Marketing posters with typography and layouts'}
+                            {generationMode === 'catalog' && 'Complete catalog with cover, products, and thank you page'}
+                        </p>
+                    </div>
+                )
+
+            case 'category':
+                return (
+                    <div className="step-content fade-in">
+                        <h2 style={{ marginBottom: '1rem' }}>Category & Model</h2>
+                        <div className="form-section">
+                            <label className="form-label">Brand Name *</label>
+                            <input
+                                className="form-input"
+                                type="text"
+                                value={brandName}
+                                onChange={e => setBrandName(e.target.value)}
+                                placeholder="Enter your brand name"
+                            />
+                        </div>
+                        <CategorySelector selected={category} onSelect={setCategory} />
+                        <ModelDescription
+                            skinTone={skinTone}
+                            setSkinTone={setSkinTone}
+                            hairType={hairType}
+                            setHairType={setHairType}
+                            bodyType={bodyType}
+                            setBodyType={setBodyType}
+                        />
+                    </div>
+                )
+
+            case 'style':
+                return (
+                    <div className="step-content fade-in">
+                        <h2 style={{ marginBottom: '1rem' }}>Style & Direction</h2>
+                        <ShotAndPose
+                            shotAngle={shotAngle}
+                            setShotAngle={setShotAngle}
+                            poseType={poseType}
+                            setPoseType={setPoseType}
+                        />
+                        <CreativeDirection
+                            value={creativeDirection}
+                            onChange={setCreativeDirection}
+                        />
+                    </div>
+                )
+
+            case 'theme':
+                return (
+                    <div className="step-content fade-in">
+                        <h2 style={{ marginBottom: '1rem' }}>Theme & Style</h2>
+                        {generationMode === 'poster' && (
+                            <MarketingOptions
+                                theme={marketingTheme}
+                                setTheme={setMarketingTheme}
+                                prop={prop}
+                                setProp={setProp}
+                            />
+                        )}
+                        {generationMode === 'catalog' && (
+                            <div className="form-section">
+                                <label className="form-label">Catalog Theme</label>
+                                <select
+                                    className="form-select"
+                                    value={catalogTheme}
+                                    onChange={e => setCatalogTheme(e.target.value)}
+                                >
+                                    <option value="studio_minimal">Studio Minimal</option>
+                                    <option value="urban_street">Urban Street</option>
+                                    <option value="luxury_gold">Luxury Gold</option>
+                                    <option value="natural_organic">Natural Organic</option>
+                                </select>
+                            </div>
+                        )}
+                    </div>
+                )
+
+            case 'layout':
+                return (
+                    <div className="step-content fade-in">
+                        <h2 style={{ marginBottom: '1rem' }}>Choose Layout</h2>
+                        <LayoutPreview
+                            selected={layoutStyle}
+                            onSelect={setLayoutStyle}
+                        />
+                        <div style={{ marginTop: '1.5rem' }}>
+                            <h3 style={{ marginBottom: '0.75rem' }}>Poster Text (Optional)</h3>
+                            <div className="form-row" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                                <input className="form-input" placeholder="Headline" value={headline} onChange={e => setHeadline(e.target.value)} />
+                                <input className="form-input" placeholder="Subtext" value={subtext} onChange={e => setSubtext(e.target.value)} />
+                                <input className="form-input" placeholder="Brand" value={brand} onChange={e => setBrand(e.target.value)} />
+                                <input className="form-input" placeholder="Tagline" value={tagline} onChange={e => setTagline(e.target.value)} />
+                            </div>
+                            <div style={{ marginTop: '0.75rem' }}>
+                                <label className="form-label">Logo (Optional)</label>
+                                <input type="file" accept="image/*" onChange={handleLogoUpload} className="form-input" />
+                            </div>
+                        </div>
+                    </div>
+                )
+
+            case 'collection':
+                return (
+                    <div className="step-content fade-in">
+                        <h2 style={{ marginBottom: '1rem' }}>Collection Details</h2>
                         <CatalogForm
-                            category={category}
-                            setCategory={setCategory}
                             collectionName={collectionName}
                             setCollectionName={setCollectionName}
                             collectionNumber={collectionNumber}
                             setCollectionNumber={setCollectionNumber}
                             theme={catalogTheme}
                             setTheme={setCatalogTheme}
-                            skinTone={skinTone}
-                            setSkinTone={setSkinTone}
-                            bodyType={bodyType}
-                            setBodyType={setBodyType}
+                            logo={logo}
+                            onLogoUpload={handleLogoUpload}
                             textFields={catalogTextFields}
                             setTextFields={setCatalogTextFields}
-                            products={products}
-                            setProducts={setProducts}
-                            logo={logo}
-                            setLogo={setLogo}
-                            onAddProduct={handleAddProduct}
-                            onRemoveProduct={handleRemoveProduct}
                         />
-                    ) : (
-                        <>
-                            {/* Category */}
-                            <section className="form-section">
-                                <h2><span className="step">2</span>Category</h2>
-                                <CategorySelector value={category} onChange={setCategory} />
-                            </section>
+                    </div>
+                )
 
-                            {/* Brand Name */}
-                            <section className="form-section">
-                                <h2><span className="step">3</span>Brand</h2>
-                                <div className="form-group">
-                                    <input
-                                        type="text"
-                                        value={brandName}
-                                        onChange={(e) => setBrandName(e.target.value)}
-                                        placeholder="Brand name"
-                                    />
-                                </div>
-                            </section>
+            case 'products':
+                return (
+                    <div className="step-content fade-in">
+                        <h2 style={{ marginBottom: '1rem' }}>Upload Products</h2>
+                        <p style={{ color: 'var(--text-muted)', marginBottom: '1rem' }}>
+                            Add 1-5 products. Each product needs a front and back image.
+                        </p>
+                        <UploadForm
+                            products={products}
+                            onAdd={handleAddProduct}
+                            onRemove={handleRemoveProduct}
+                        />
+                    </div>
+                )
 
-                            {/* Model Appearance */}
-                            <section className="form-section">
-                                <h2><span className="step">4</span>Model</h2>
-                                <ModelDescription
-                                    skinTone={skinTone}
-                                    hairType={hairType}
-                                    bodyType={bodyType}
-                                    onSkinToneChange={setSkinTone}
-                                    onHairTypeChange={setHairType}
-                                    onBodyTypeChange={setBodyType}
-                                />
-                            </section>
+            case 'quality':
+                return (
+                    <div className="step-content fade-in">
+                        <h2 style={{ marginBottom: '1rem' }}>Select Quality</h2>
+                        <QualitySelector
+                            selected={imageQuality}
+                            onSelect={setImageQuality}
+                        />
+                        <div style={{ marginTop: '2rem', textAlign: 'center' }}>
+                            <h3 style={{ marginBottom: '0.5rem' }}>Ready to Generate!</h3>
+                            <p style={{ color: 'var(--text-muted)' }}>
+                                {products.length} product(s) • {generationMode} mode • {imageQuality} quality
+                            </p>
+                        </div>
+                    </div>
+                )
 
-                            {/* Conditional: Photo or Poster Options */}
-                            {generationMode === 'photo' ? (
-                                <>
-                                    {/* Shot & Pose */}
-                                    <section className="form-section">
-                                        <h2><span className="step">5</span>Pose</h2>
-                                        <ShotAndPose
-                                            shotAngle={shotAngle}
-                                            poseType={poseType}
-                                            onShotAngleChange={setShotAngle}
-                                            onPoseTypeChange={setPoseType}
-                                        />
-                                    </section>
+            default:
+                return null
+        }
+    }
 
-                                    {/* Creative Direction */}
-                                    <section className="form-section">
-                                        <h2><span className="step">6</span>Direction (Optional)</h2>
-                                        <CreativeDirection
-                                            value={creativeDirection}
-                                            onChange={setCreativeDirection}
-                                        />
-                                    </section>
-                                </>
-                            ) : (
-                                <>
-                                    {/* Marketing Options */}
-                                    <section className="form-section">
-                                        <h2><span className="step">5</span>Poster Options</h2>
-                                        <MarketingOptions
-                                            theme={marketingTheme}
-                                            setTheme={setMarketingTheme}
-                                            prop={prop}
-                                            setProp={setProp}
-                                            pose={poseType}
-                                            setPose={setPoseType}
-                                            layoutStyle={layoutStyle}
-                                            setLayoutStyle={setLayoutStyle}
-                                            headline={headline}
-                                            setHeadline={setHeadline}
-                                            subtext={subtext}
-                                            setSubtext={setSubtext}
-                                            brand={brand}
-                                            setBrand={setBrand}
-                                            price={price}
-                                            setPrice={setPrice}
-                                            cta={cta}
-                                            setCta={setCta}
-                                            tagline={tagline}
-                                            setTagline={setTagline}
-                                        />
-                                    </section>
+    return (
+        <div className="app">
+            {/* Header */}
+            <header className="header">
+                <div className="header-content">
+                    <div className="logo">
+                        <span className="logo-icon">👕</span>
+                        <span className="logo-text">BONO AI</span>
+                    </div>
+                </div>
+            </header>
 
-                                    {/* Logo Upload */}
-                                    <section className="form-section">
-                                        <h2><span className="step">6</span>Logo (Optional)</h2>
-                                        <div className="form-group">
-                                            <input
-                                                type="file"
-                                                accept="image/*"
-                                                onChange={handleLogoUpload}
-                                                style={{ padding: '0.75rem' }}
-                                            />
-                                            {logo && (
-                                                <p style={{ marginTop: '0.5rem', fontSize: '0.875rem', color: 'var(--text-muted)' }}>
-                                                    Logo: {logo.name}
-                                                </p>
-                                            )}
-                                        </div>
-                                    </section>
-                                </>
+            {/* Main Content */}
+            <main className="main-content" style={{ maxWidth: '900px', margin: '0 auto', padding: '2rem' }}>
+                {/* Progress Indicator */}
+                <div style={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    gap: '0.5rem',
+                    marginBottom: '2rem',
+                    flexWrap: 'wrap'
+                }}>
+                    {steps.map((step, index) => (
+                        <div
+                            key={step.id}
+                            onClick={() => index <= currentStep && setCurrentStep(index)}
+                            style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.5rem',
+                                cursor: index <= currentStep ? 'pointer' : 'default',
+                                opacity: index <= currentStep ? 1 : 0.4,
+                                transition: 'all 0.3s ease'
+                            }}
+                        >
+                            <div style={{
+                                width: '36px',
+                                height: '36px',
+                                borderRadius: '50%',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                background: index === currentStep
+                                    ? 'linear-gradient(135deg, var(--accent-primary), #4a4a4a)'
+                                    : index < currentStep
+                                        ? 'var(--success)'
+                                        : 'var(--bg-tertiary)',
+                                color: index <= currentStep ? 'white' : 'var(--text-muted)',
+                                fontSize: '1rem',
+                                fontWeight: 600,
+                                transition: 'all 0.3s ease',
+                                boxShadow: index === currentStep ? '0 4px 12px rgba(0,0,0,0.2)' : 'none'
+                            }}>
+                                {index < currentStep ? '✓' : step.icon}
+                            </div>
+                            {index < steps.length - 1 && (
+                                <div style={{
+                                    width: '24px',
+                                    height: '2px',
+                                    background: index < currentStep ? 'var(--success)' : 'var(--bg-tertiary)',
+                                    transition: 'all 0.3s ease'
+                                }} />
                             )}
+                        </div>
+                    ))}
+                </div>
 
-                            {/* Upload Products */}
-                            <section className="form-section">
-                                <h2><span className="step">7</span>Products ({products.length}/10)</h2>
-                                <UploadForm
-                                    products={products}
-                                    onAddProduct={handleAddProduct}
-                                    onRemoveProduct={handleRemoveProduct}
-                                />
-                            </section>
-                        </>
-                    )}
+                {/* Step Content */}
+                <div className="section-enhanced" style={{ minHeight: '400px' }}>
+                    {renderStepContent()}
+                </div>
 
-                    {/* Submit Button */}
+                {/* Navigation Buttons */}
+                <div style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    marginTop: '1.5rem',
+                    gap: '1rem'
+                }}>
                     <button
-                        className="btn btn-primary btn-large"
-                        onClick={handleSubmit}
-                        disabled={!isFormValid || isGenerating}
+                        onClick={handleBack}
+                        disabled={isFirstStep || isGenerating}
+                        style={{
+                            padding: '0.875rem 2rem',
+                            borderRadius: '12px',
+                            border: '2px solid var(--border-color)',
+                            background: 'transparent',
+                            color: isFirstStep ? 'var(--text-muted)' : 'var(--text-primary)',
+                            cursor: isFirstStep ? 'not-allowed' : 'pointer',
+                            fontSize: '0.95rem',
+                            fontWeight: 600,
+                            opacity: isFirstStep ? 0.5 : 1,
+                            transition: 'all 0.3s ease',
+                            flex: 1
+                        }}
+                    >
+                        ← Back
+                    </button>
+                    <button
+                        onClick={handleNext}
+                        disabled={!canProceed() || isGenerating}
+                        className="btn-generate"
+                        style={{
+                            flex: 2,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '0.5rem'
+                        }}
                     >
                         {isGenerating ? (
                             <>
                                 <span className="spinner"></span>
-                                Processing
+                                Generating...
                             </>
+                        ) : isLastStep ? (
+                            '🚀 Generate Now'
                         ) : (
-                            generationMode === 'catalog'
-                                ? `Generate Catalog (${2 + products.length * 2} pages)`
-                                : generationMode === 'poster'
-                                    ? 'Generate Posters'
-                                    : 'Generate Photos'
+                            'Next →'
                         )}
                     </button>
-
-                    {/* Status Message */}
-                    {jobStatus && (
-                        <div className={`status-message ${jobStatus.status}`} style={{
-                            marginTop: '1rem',
-                            padding: '1rem',
-                            borderRadius: 'var(--radius-md)',
-                            textAlign: 'center',
-                            background: jobStatus.status === 'completed' ? '#e8f5e9' :
-                                jobStatus.status === 'failed' ? '#ffebee' : 'var(--bg-secondary)',
-                            color: jobStatus.status === 'completed' ? '#2e7d32' :
-                                jobStatus.status === 'failed' ? '#c62828' : 'var(--text-secondary)'
-                        }}>
-                            {jobStatus.status === 'generating' && (
-                                <span className="spinner" style={{ marginRight: '0.5rem' }}></span>
-                            )}
-                            {jobStatus.message}
-                            {jobStatus.status === 'completed' && (
-                                <button className="btn" onClick={handleReset} style={{ marginLeft: '1rem' }}>
-                                    New Generation
-                                </button>
-                            )}
-                            {jobStatus.status === 'failed' && (
-                                <button className="btn" onClick={handleReset} style={{ marginLeft: '1rem' }}>
-                                    Try Again
-                                </button>
-                            )}
-                        </div>
-                    )}
                 </div>
+
+                {/* Status Message */}
+                {jobStatus && (
+                    <div style={{
+                        marginTop: '1rem',
+                        padding: '1rem',
+                        borderRadius: '8px',
+                        textAlign: 'center',
+                        background: jobStatus.status === 'success'
+                            ? 'rgba(61, 90, 61, 0.1)'
+                            : jobStatus.status === 'error'
+                                ? 'rgba(139, 64, 64, 0.1)'
+                                : 'var(--bg-tertiary)',
+                        color: jobStatus.status === 'success'
+                            ? 'var(--success)'
+                            : jobStatus.status === 'error'
+                                ? 'var(--error)'
+                                : 'var(--text-primary)'
+                    }}>
+                        {jobStatus.message}
+                    </div>
+                )}
             </main>
         </div>
     )

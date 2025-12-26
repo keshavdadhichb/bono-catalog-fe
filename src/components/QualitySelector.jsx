@@ -5,21 +5,18 @@ const QUALITY_OPTIONS = [
         value: "1K",
         label: "1K",
         desc: "Fast",
-        cost: "₹2-3",
         icon: "⚡"
     },
     {
         value: "2K",
         label: "2K",
         desc: "Balanced",
-        cost: "₹3-4",
         icon: "⚖️"
     },
     {
         value: "4K",
         label: "4K",
-        desc: "Best",
-        cost: "₹4-5",
+        desc: "Best Quality",
         icon: "✨"
     }
 ]
@@ -27,12 +24,12 @@ const QUALITY_OPTIONS = [
 const styles = {
     container: {
         display: 'flex',
-        gap: '0.5rem',
+        gap: '0.75rem',
         marginBottom: '0.5rem'
     },
     option: (isSelected) => ({
         flex: 1,
-        padding: '0.75rem 0.5rem',
+        padding: '1rem 0.75rem',
         borderRadius: '12px',
         border: isSelected ? '2px solid var(--accent-primary)' : '2px solid var(--border-color)',
         background: isSelected ? 'var(--bg-secondary)' : 'var(--bg-tertiary)',
@@ -43,27 +40,18 @@ const styles = {
         boxShadow: isSelected ? '0 4px 12px rgba(0,0,0,0.08)' : 'none'
     }),
     icon: {
-        fontSize: '1.2rem',
-        marginBottom: '0.25rem'
+        fontSize: '1.5rem',
+        marginBottom: '0.4rem'
     },
     label: {
-        fontSize: '0.9rem',
+        fontSize: '1.1rem',
         fontWeight: 700,
         color: 'var(--text-primary)'
     },
     desc: {
-        fontSize: '0.65rem',
+        fontSize: '0.7rem',
         color: 'var(--text-muted)',
-        marginTop: '0.15rem'
-    },
-    cost: {
-        fontSize: '0.6rem',
-        color: 'var(--text-tertiary)',
-        marginTop: '0.25rem',
-        background: 'var(--bg-primary)',
-        padding: '0.15rem 0.4rem',
-        borderRadius: '8px',
-        display: 'inline-block'
+        marginTop: '0.25rem'
     }
 }
 
@@ -89,7 +77,6 @@ export default function QualitySelector({ selected, onSelect }) {
                     <div style={styles.icon}>{opt.icon}</div>
                     <div style={styles.label}>{opt.label}</div>
                     <div style={styles.desc}>{opt.desc}</div>
-                    <div style={styles.cost}>{opt.cost}/image</div>
                 </div>
             ))}
         </div>
