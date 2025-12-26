@@ -1,42 +1,112 @@
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 import { useDropzone } from 'react-dropzone'
 
+// Optimize image: resize if too large, compress to JPEG
+async function optimizeImage(file, maxWidth = 2048, quality = 0.85) {
+    return new Promise((resolve) => {
+        // If file is small enough, return as-is
+        if (file.size < 500 * 1024) { // Less than 500KB
+            resolve(file)
+            return
+        }
+
+        const img = new Image()
+        const canvas = document.createElement('canvas')
+        const ctx = canvas.getContext('2d')
+
+        img.onload = () => {
+            let { width, height } = img
+
+            // Only resize if larger than maxWidth
+            if (width > maxWidth) {
+                height = (height * maxWidth) / width
+                width = maxWidth
+            }
+
+            canvas.width = width
+            canvas.height = height
+            ctx.drawImage(img, 0, 0, width, height)
+
+            canvas.toBlob(
+                (blob) => {
+                    const optimizedFile = new File([blob], file.name, {
+                        type: 'image/jpeg',
+                        lastModified: Date.now()
+                    })
+                    console.log(`Optimized: ${(file.size / 1024).toFixed(0)}KB → ${(optimizedFile.size / 1024).toFixed(0)}KB`)
+                    resolve(optimizedFile)
+                },
+                'image/jpeg',
+                quality
+            )
+        }
+
+        img.src = URL.createObjectURL(file)
+    })
+}
+
 function UploadForm({ products, onAddProduct, onRemoveProduct }) {
-    const onDropFront = useCallback((acceptedFiles) => {
-        // Store front image temporarily
-        window.tempFrontImage = acceptedFiles[0]
+    const [isOptimizing, setIsOptimizing] = useState(false)
+
+    const onDropFront = useCallback(async (acceptedFiles) => {
+        if (!acceptedFiles[0]) return
+        setIsOptimizing(true)
+        try {
+            const optimized = await optimizeImage(acceptedFiles[0])
+            window.tempFrontImage = optimized
+        } finally {
+            setIsOptimizing(false)
+        }
     }, [])
 
-    const onDropBack = useCallback((acceptedFiles) => {
-        if (window.tempFrontImage && acceptedFiles[0]) {
-            onAddProduct(window.tempFrontImage, acceptedFiles[0])
+    const onDropBack = useCallback(async (acceptedFiles) => {
+        if (!window.tempFrontImage || !acceptedFiles[0]) return
+        setIsOptimizing(true)
+        try {
+            const optimized = await optimizeImage(acceptedFiles[0])
+            onAddProduct(window.tempFrontImage, optimized)
             window.tempFrontImage = null
+        } finally {
+            setIsOptimizing(false)
         }
     }, [onAddProduct])
 
     const { getRootProps: getFrontProps, getInputProps: getFrontInputProps, isDragActive: isFrontDrag } = useDropzone({
         onDrop: onDropFront,
-        accept: { 'image/*': ['.png', '.jpg', '.jpeg', '.webp'] },
+        accept: { 'image/*': ['.png', '.jpg', '.jpeg', '.webp', '.heic'] },
         maxFiles: 1
     })
 
     const { getRootProps: getBackProps, getInputProps: getBackInputProps, isDragActive: isBackDrag } = useDropzone({
         onDrop: onDropBack,
-        accept: { 'image/*': ['.png', '.jpg', '.jpeg', '.webp'] },
+        accept: { 'image/*': ['.png', '.jpg', '.jpeg', '.webp', '.heic'] },
         maxFiles: 1
     })
 
     return (
         <div>
+            {isOptimizing && (
+                <div style={{
+                    textAlign: 'center',
+                    padding: '0.5rem',
+                    background: 'var(--bg-tertiary)',
+                    borderRadius: '8px',
+                    marginBottom: '1rem',
+                    color: 'var(--text-muted)'
+                }}>
+                    ⚡ Optimizing image...
+                </div>
+            )}
+
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
                 <div
                     {...getFrontProps()}
-                    className={`dropzone ${isFrontDrag ? 'active' : ''}`}
+                    className={`dropzone ${isFrontDrag ? 'active' : ''} ${window.tempFrontImage ? 'ready' : ''}`}
                 >
                     <input {...getFrontInputProps()} />
-                    <div className="dropzone-icon">1</div>
+                    <div className="dropzone-icon">{window.tempFrontImage ? '✓' : '1'}</div>
                     <p>Front View</p>
-                    <span>Drop or click</span>
+                    <span>{window.tempFrontImage ? 'Ready! Now add back' : 'Drop or click'}</span>
                 </div>
 
                 <div
