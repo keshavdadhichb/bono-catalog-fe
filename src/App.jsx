@@ -7,6 +7,7 @@ import CreativeDirection from './components/CreativeDirection'
 import MarketingOptions from './components/MarketingOptions'
 import CatalogForm from './components/CatalogForm'
 import GenerationProgress from './components/GenerationProgress'
+import QualitySelector from './components/QualitySelector'
 
 function App() {
     // Generation mode: "photo" or "poster"
@@ -46,6 +47,9 @@ function App() {
     const [collectionNumber, setCollectionNumber] = useState('')
     const [catalogTheme, setCatalogTheme] = useState('studio_minimal')
     const [catalogTextFields, setCatalogTextFields] = useState({})
+
+    // Quality selection
+    const [imageQuality, setImageQuality] = useState('4K')
 
     // Generation state
     const [jobId, setJobId] = useState(null)
@@ -98,6 +102,7 @@ function App() {
             formData.append('category', category)
             formData.append('skin_tone', skinTone)
             formData.append('body_type', bodyType)
+            formData.append('image_quality', imageQuality)
 
             // Add products
             products.forEach(p => {
@@ -427,6 +432,15 @@ function App() {
                             </section>
                         </>
                     )}
+
+                    {/* Quality Selection */}
+                    <section className="form-section">
+                        <h2><span className="step">8</span>Image Quality</h2>
+                        <QualitySelector
+                            selected={imageQuality}
+                            onSelect={setImageQuality}
+                        />
+                    </section>
 
                     {/* Submit Button */}
                     <button
