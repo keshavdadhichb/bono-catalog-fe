@@ -272,6 +272,107 @@ const LAYOUTS = {
                 <circle cx="80" cy="20" r="2" fill="#fff" opacity="0.5" />
             </svg>
         )
+    },
+    // AESTHETIC LAYOUTS
+    minimalist_editorial: {
+        name: "Minimalist Editorial",
+        description: "High-end magazine with white space",
+        textFields: ["headline", "subtext"],
+        diagram: (
+            <svg viewBox="0 0 90 160" style={{ width: '100%', height: '100%' }}>
+                <rect x="0" y="0" width="90" height="160" fill="#F8F6F3" rx="4" />
+                <rect x="5" y="20" width="35" height="8" fill="#333" rx="1" />
+                <rect x="5" y="32" width="30" height="4" fill="#888" rx="1" />
+                <rect x="5" y="40" width="32" height="4" fill="#888" rx="1" />
+                <rect x="5" y="48" width="28" height="4" fill="#888" rx="1" />
+                <rect x="44" y="10" width="1" height="130" fill="#333" />
+                <circle cx="68" cy="55" r="18" fill="#ddd" />
+                <rect x="53" y="78" width="30" height="40" fill="#ddd" rx="2" />
+                <rect x="5" y="145" width="35" height="5" fill="#666" rx="1" />
+            </svg>
+        )
+    },
+    urban_brutalist: {
+        name: "Urban Brutalist",
+        description: "Edgy streetwear concrete style",
+        textFields: ["headline", "subtext"],
+        diagram: (
+            <svg viewBox="0 0 90 160" style={{ width: '100%', height: '100%' }}>
+                <rect x="0" y="0" width="90" height="160" fill="#A0A0A0" rx="4" />
+                <text x="45" y="35" textAnchor="middle" fill="#333" fontSize="14" fontWeight="bold" opacity="0.3">URBAN</text>
+                <line x1="10" y1="50" x2="80" y2="50" stroke="#333" strokeWidth="0.5" />
+                <line x1="10" y1="110" x2="80" y2="110" stroke="#333" strokeWidth="0.5" />
+                <line x1="30" y1="30" x2="30" y2="130" stroke="#333" strokeWidth="0.5" />
+                <line x1="60" y1="30" x2="60" y2="130" stroke="#333" strokeWidth="0.5" />
+                <circle cx="45" cy="70" r="18" fill="#ddd" />
+                <rect x="30" y="90" width="30" height="35" fill="#ddd" rx="2" />
+                <rect x="60" y="15" width="25" height="20" fill="#333" rx="1" />
+                <text x="72" y="27" textAnchor="middle" fill="#fff" fontSize="4">SPEC: DATA</text>
+                <rect x="15" y="140" width="60" height="12" fill="#333" rx="1" />
+                <text x="45" y="149" textAnchor="middle" fill="#fff" fontSize="8" fontWeight="bold">STREETWEAR</text>
+            </svg>
+        )
+    },
+    warm_earth: {
+        name: "Warm Earth",
+        description: "Organic natural earth tones",
+        textFields: ["headline", "subtext", "tagline"],
+        diagram: (
+            <svg viewBox="0 0 90 160" style={{ width: '100%', height: '100%' }}>
+                <rect x="0" y="0" width="90" height="160" fill="#D4C4B0" rx="4" />
+                <ellipse cx="20" cy="30" rx="25" ry="20" fill="#C68B77" opacity="0.6" />
+                <ellipse cx="70" cy="50" rx="20" ry="25" fill="#9CAF88" opacity="0.5" />
+                <ellipse cx="25" cy="130" rx="30" ry="20" fill="#D4A5A5" opacity="0.5" />
+                <circle cx="35" cy="70" r="20" fill="#eee" />
+                <rect x="20" y="92" width="30" height="40" fill="#eee" rx="2" />
+                <rect x="55" y="65" width="30" height="8" fill="#5D4E37" rx="1" />
+                <rect x="55" y="78" width="25" height="4" fill="#7D6E57" rx="1" />
+                <path d="M70 100 Q75 110 70 120 Q65 130 70 140" stroke="#5D4E37" fill="none" strokeWidth="1" />
+                <rect x="55" y="145" width="30" height="5" fill="#5D4E37" rx="1" />
+            </svg>
+        )
+    },
+    dark_luxury: {
+        name: "Dark Luxury",
+        description: "Premium dark with gold accents",
+        textFields: ["headline", "subtext"],
+        diagram: (
+            <svg viewBox="0 0 90 160" style={{ width: '100%', height: '100%' }}>
+                <defs>
+                    <linearGradient id="darkGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stopColor="#3a3a3a" />
+                        <stop offset="50%" stopColor="#2C2C2C" />
+                        <stop offset="100%" stopColor="#1a1a1a" />
+                    </linearGradient>
+                </defs>
+                <rect x="0" y="0" width="90" height="160" fill="url(#darkGrad)" rx="4" />
+                <rect x="3" y="3" width="84" height="154" fill="none" stroke="#D4AF37" strokeWidth="1" rx="2" />
+                <rect x="20" y="15" width="50" height="10" fill="#D4AF37" rx="1" />
+                <text x="45" y="23" textAnchor="middle" fill="#1a1a1a" fontSize="6" fontWeight="bold">PREMIUM</text>
+                <circle cx="45" cy="70" r="22" fill="#c0c0c0" />
+                <rect x="28" y="95" width="34" height="40" fill="#c0c0c0" rx="2" />
+                <rect x="15" y="140" width="60" height="1" fill="#D4AF37" />
+                <rect x="22" y="147" width="46" height="5" fill="none" stroke="#D4AF37" strokeWidth="0.5" rx="1" />
+            </svg>
+        )
+    },
+    dynamic_typography: {
+        name: "Dynamic Typography",
+        description: "Text as major visual element",
+        textFields: ["headline", "subtext"],
+        diagram: (
+            <svg viewBox="0 0 90 160" style={{ width: '100%', height: '100%' }}>
+                <rect x="0" y="0" width="90" height="160" fill="#fff" rx="4" />
+                <text x="20" y="30" fill="#ddd" fontSize="28" fontWeight="bold" transform="rotate(90 20 30)">ORIGINAL</text>
+                <text x="35" y="30" fill="#eee" fontSize="28" fontWeight="bold" transform="rotate(90 35 30)">DESIGN</text>
+                <rect x="5" y="10" width="40" height="15" fill="#333" rx="1" />
+                <text x="25" y="20" textAnchor="middle" fill="#fff" fontSize="5" fontWeight="bold">THE NEW STANDARD</text>
+                <circle cx="60" cy="70" r="20" fill="#bbb" />
+                <rect x="45" y="93" width="30" height="40" fill="#bbb" rx="2" />
+                <circle cx="12" cy="145" r="6" fill="#E67E22" />
+                <rect x="8" y="27" width="20" height="5" fill="#E67E22" rx="1" />
+            </svg>
+        )
     }
 }
 
